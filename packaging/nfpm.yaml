@@ -1,0 +1,31 @@
+name: taito
+
+arch: ${NFPM_ARCH}
+
+platform: linux
+
+# Set via VERSION env var; defaults to 0.1.0
+version: ${VERSION}
+
+version_schema: semver
+
+# Maintainer. (required)
+maintainer: Lars Zimmermann <hello@zimmermann-lars.de>
+
+description: taito-cli the package manager for AI SKILLs/Agents
+
+vendor: taito-project
+
+homepage: https://taito-project.eu
+# License.
+license: Apache-2.0
+
+# Packages it provides. (overridable)
+provides:
+  - taito
+
+# Contents to add to the package
+contents:
+  # Basic file that applies to all packagers
+  - src: ./packaging/taito/binaries/taito-linux-${NFPM_ARCH}
+    dst: /usr/local/bin/taito

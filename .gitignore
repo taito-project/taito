@@ -1,0 +1,6 @@
+taito
+packaging/taito/binaries/*
+packaging/target/*
+packaging/nfpm-rendered.yaml
+
+.vscode/*

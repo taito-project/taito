@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/taito-project/taito.spec/blob/main/spec/v0.1.0/taito.schema.json",
+  "title": "taito.spec",
+  "description": "JSON Schema for validating taito.spec manifest files (v0.1.0)",
+  "type": "object",
+  "required": [
+    "type",
+    "name"
+  ],
+  "properties": {
+    "taitoVersion": {
+      "type": "string",
+      "description": "The version of the taito.spec this manifest conforms to.",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "examples": [
+        "0.1.0"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "description": "The type of this package. 'skill' for a standalone skill, 'agent' for a composable agent, 'bundle' for a collection of skills/agents.",
+      "enum": [
+        "skill",
+        "agent",
+        "bundle"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the skill or agent. Must be lowercase, alphanumeric, hyphens, and underscores only.",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$",
+      "minLength": 1,
+      "maxLength": 128,
+      "examples": [
+        "git-commit-helper",
+        "code_review_agent"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "description": "The version of this skill or agent. Must be a valid semantic version.",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "examples": [
+        "1.0.0",
+        "0.2.1-beta.1"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "description": "A short, human-readable description of what this skill or agent does.",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "author": {
+      "type": "object",
+      "description": "The author of the skill or agent.",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The author's name or organization name.",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "description": "A URL associated with the author.",
+          "format": "uri"
+        },
+        "email": {
+          "type": "string",
+          "description": "The author's contact email address.",
+          "format": "email"
+        }
+      },
+      "additionalProperties": false
+    },
+    "license": {
+      "type": "string",
+      "description": "An SPDX license identifier.",
+      "examples": [
+        "Apache-2.0",
+        "MIT",
+        "GPL-3.0-only"
+      ]
+    },
+    "keywords": {
+      "type": "array",
+      "description": "An array of keywords for categorization and discovery.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9_-]*$",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "includes": {
+      "type": "array",
+      "description": "An array of relative paths to taito.spec files within this repository. Only valid when type is 'bundle'.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}
