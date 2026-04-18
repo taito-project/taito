@@ -29,6 +29,11 @@ For more information, please see the [taito (website)](https://taito-project.eu)
 
 ## Installation
 
+#### via Go
+```bash
+   go install github.com/taito-project/taito
+```
+
 #### via NPM
 Note: -g is required to install taito globally
 ```bash
