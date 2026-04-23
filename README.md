@@ -29,6 +29,11 @@ For more information, please see the [taito (website)](https://taito-project.eu)
 
 ## Installation
 
+#### via install script
+```bash
+curl -fsSL https://raw.githubusercontent.com/taito-project/taito/main/install.sh | sh
+```
+
 #### via Go
 ```bash
    go install github.com/taito-project/taito
