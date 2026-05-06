@@ -41,6 +41,7 @@ Examples:
 }
 
 func init() {
+	installCmd.Flags().Bool("non-interactive", false, "Install all items from bundles without prompting (useful for CI/automation)")
 	rootCmd.AddCommand(installCmd)
 }
 
@@ -64,7 +65,9 @@ func runInstall(cmd *cobra.Command, args []string) {
 		defer cleaner.Cleanup()
 	}
 
-	m := ui.NewInstallModel(source, installer)
+	nonInteractive, _ := cmd.Flags().GetBool("non-interactive")
+
+	m := ui.NewInstallModel(source, installer, nonInteractive)
 	p := tea.NewProgram(m)
 	finalModel, err := p.Run()
 	if err != nil {
