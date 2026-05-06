@@ -51,6 +51,22 @@ taito setup
 ```
 </details>
 
+### Non-interactive mode
+
+Use the `--tools` flag to skip the interactive prompt and configure specific tools directly. This is useful for CI/CD pipelines and automation scripts:
+
+```bash
+$ taito setup --tools=opencode,claude-code
+
+  ✓  Configuration saved
+    Claude Code    ~/.claude
+    OpenCode       ~/.config/opencode
+
+    Saved to ~/.config/taito/config.json
+```
+
+Valid tool names: `cursor`, `windsurf`, `claude-code`, `opencode`, `copilot`.
+
 ## taito install
 
 The `install` command is used to install bundle containing multiple skills or agents as well as only single ones from:

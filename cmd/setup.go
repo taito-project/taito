@@ -20,10 +20,21 @@ Prompts for:
 
 Run again at any time to update your configuration.
 
+Use --tools to skip the interactive prompt (useful for CI/automation):
+  taito setup --tools=opencode,claude-code
+
 Examples:
-  taito setup`,
+  taito setup
+  taito setup --tools=opencode,claude-code`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := cfgFromCmd(cmd)
+
+		toolsFlag, _ := cmd.Flags().GetString("tools")
+		if toolsFlag != "" {
+			runSetupWithTools(cmd, cfg, toolsFlag)
+			return
+		}
+
 		m := ui.NewSetupModel(cfg)
 
 		p := tea.NewProgram(m)
@@ -48,31 +59,51 @@ Examples:
 			return
 		}
 
-		// Build the config from the wizard result.
-		// Preserve existing storage settings (setup only manages tools).
-		newCfg := &config.Config{
-			Storage: cfg.Storage,
-			Tools:   result.Tools,
-		}
-
-		// Save the config to disk.
-		if err := config.Save(newCfg); err != nil {
-			fmt.Printf(" %s  Failed to save configuration\n    %v\n", ui.FailIcon(), err)
-			os.Exit(1)
-		}
-
-		// Update the in-memory config so subsequent commands (if any) see it.
-		setCmdConfig(cmd, newCfg)
-
-		// The done view was already printed by Bubble Tea.
-		// Append the config file path.
-		cfgPath, err := config.ConfigFilePath()
-		if err == nil {
-			fmt.Printf("    Saved to %s\n\n", cfgPath)
-		}
+		saveSetupConfig(cmd, cfg, result.Tools)
+		printConfigPath()
 	},
 }
 
 func init() {
+	setupCmd.Flags().String("tools", "", "Comma-separated list of tools to configure (skips interactive prompt)")
 	rootCmd.AddCommand(setupCmd)
+}
+
+// runSetupWithTools handles the non-interactive path when --tools is provided.
+func runSetupWithTools(cmd *cobra.Command, cfg *config.Config, toolsFlag string) {
+	tools, err := config.ResolveTools(toolsFlag)
+	if err != nil {
+		fmt.Printf(" %s  %v\n", ui.FailIcon(), err)
+		os.Exit(1)
+	}
+	saveSetupConfig(cmd, cfg, tools)
+
+	fmt.Printf(" %s  Configuration saved\n", ui.SuccessIcon())
+	for _, tc := range tools {
+		fmt.Printf("    %s\n", tc.Name)
+	}
+	printConfigPath()
+}
+
+// saveSetupConfig persists the tool configuration to disk.
+func saveSetupConfig(cmd *cobra.Command, existing *config.Config, tools []config.ToolConfig) {
+	newCfg := &config.Config{
+		Storage: existing.Storage,
+		Tools:   tools,
+	}
+
+	if err := config.Save(newCfg); err != nil {
+		fmt.Printf(" %s  Failed to save configuration\n    %v\n", ui.FailIcon(), err)
+		os.Exit(1)
+	}
+
+	setCmdConfig(cmd, newCfg)
+}
+
+// printConfigPath prints the config file location.
+func printConfigPath() {
+	cfgPath, err := config.ConfigFilePath()
+	if err == nil {
+		fmt.Printf("\n    Saved to %s\n\n", cfgPath)
+	}
 }

@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -221,4 +222,34 @@ func (c *Config) CacheDir() (string, error) {
 		return c.Storage.CacheDir, nil
 	}
 	return DefaultCacheDir()
+}
+
+// ResolveTools validates a comma-separated list of tool names and returns the
+// corresponding ToolConfig slice. Returns an error if any name is unknown or
+// the list is empty.
+func ResolveTools(commaSeparated string) ([]ToolConfig, error) {
+	knownTools := KnownTools()
+	knownMap := make(map[string]bool, len(knownTools))
+	var validNames []string
+	for _, kt := range knownTools {
+		knownMap[kt.Name] = true
+		validNames = append(validNames, kt.Name)
+	}
+
+	var tools []ToolConfig
+	for _, raw := range strings.Split(commaSeparated, ",") {
+		name := strings.TrimSpace(raw)
+		if name == "" {
+			continue
+		}
+		if !knownMap[name] {
+			return nil, fmt.Errorf("unknown tool %q; valid tools: %s", name, strings.Join(validNames, ", "))
+		}
+		tools = append(tools, ToolConfig{Name: name})
+	}
+
+	if len(tools) == 0 {
+		return nil, fmt.Errorf("no tools specified")
+	}
+	return tools, nil
 }

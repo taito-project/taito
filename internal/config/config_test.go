@@ -244,3 +244,43 @@ func overrideHomeDir(t *testing.T, tmpHome string) func() {
 		}
 	}
 }
+
+func TestResolveTools_Valid(t *testing.T) {
+	tools, err := ResolveTools("opencode,claude-code")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(tools) != 2 {
+		t.Fatalf("expected 2 tools, got %d", len(tools))
+	}
+	if tools[0].Name != "opencode" || tools[1].Name != "claude-code" {
+		t.Errorf("unexpected tools: %v", tools)
+	}
+}
+
+func TestResolveTools_InvalidName(t *testing.T) {
+	_, err := ResolveTools("opencode,fakeTool")
+	if err == nil {
+		t.Fatal("expected error for unknown tool")
+	}
+	if !strings.Contains(err.Error(), "fakeTool") {
+		t.Errorf("error should mention invalid name, got: %v", err)
+	}
+}
+
+func TestResolveTools_Empty(t *testing.T) {
+	_, err := ResolveTools("")
+	if err == nil {
+		t.Fatal("expected error for empty tools")
+	}
+}
+
+func TestResolveTools_WhitespaceHandling(t *testing.T) {
+	tools, err := ResolveTools(" opencode , claude-code ")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(tools) != 2 {
+		t.Fatalf("expected 2 tools, got %d", len(tools))
+	}
+}
