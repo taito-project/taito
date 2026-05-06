@@ -92,7 +92,16 @@ func TestSetupModelViewContainsToolPrompt(t *testing.T) {
 	}
 }
 
-// testConfig loads the user configuration for use in tests.
+func TestSetupCommandHasToolsFlag(t *testing.T) {
+	f := setupCmd.Flags().Lookup("tools")
+	if f == nil {
+		t.Fatal("expected --tools flag to be registered")
+	}
+	if f.DefValue != "" {
+		t.Errorf("expected default value to be empty, got %q", f.DefValue)
+	}
+}
+
 // This replaces the old global Cfg variable.
 func testConfig() *config.Config {
 	cfg, err := config.Load()
