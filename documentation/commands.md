@@ -105,6 +105,18 @@ $ taito install registry.gitlab.com/skill-harbor/infrastructure/test-only-one:v1
 
 This allows you to easily share your skills and agents with others by simply sharing the OCI package. Its fully compatible with any OCI registry. Making it easy to version, distribute and manage your skills and agents in a standardized way. This is also the preferred way in corporate environments.
 
+### Non-interactive mode
+
+When installing bundles in CI/CD pipelines or automation scripts, use the `--non-interactive` flag to skip the skill selection prompt and install all items from the bundle automatically:
+
+```bash
+$ taito install --non-interactive github.com/org/devops-bundle@v2.0.0
+
+  ✓  bundle  'devops-bundle' (3 skills, 1 agent) installed to 2 tools
+```
+
+This is useful when you want to ensure reproducible installs without requiring user input.
+
 ## taito list
 
 The `list` command is used to display all skills, agents, and bundles currently installed across your configured AI coding tools. Packages installed via a bundle are grouped under their parent bundle in a tree structure.
