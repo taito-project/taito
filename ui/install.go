@@ -185,6 +185,9 @@ type InstallModel struct {
 	pendingResolve *InstallResolveMsg
 	pendingExtract *InstallExtractMsg
 
+	// Non-interactive mode: skip bundle selection prompts.
+	nonInteractive bool
+
 	// Skill selection state.
 	skillSelector *SkillSelectorModel
 	onSelect      func([]string) error
@@ -197,17 +200,18 @@ type InstallModel struct {
 }
 
 // NewInstallModel creates an InstallModel.
-func NewInstallModel(source string, installer Installer) InstallModel {
+func NewInstallModel(source string, installer Installer, nonInteractive bool) InstallModel {
 	s := spinner.New()
 	s.Style = lipgloss.NewStyle().Foreground(ColorPrimary)
 	s.Spinner = spinner.Dot
 
 	return InstallModel{
-		spinner:   s,
-		phase:     installPhaseResolving,
-		phaseText: "Resolving source...",
-		source:    source,
-		installer: installer,
+		spinner:        s,
+		phase:          installPhaseResolving,
+		phaseText:      "Resolving source...",
+		source:         source,
+		installer:      installer,
+		nonInteractive: nonInteractive,
 	}
 }
 
@@ -302,13 +306,24 @@ func (m InstallModel) tryAdvance() (tea.Model, tea.Cmd) {
 
 		// Intercept: If there are available skills, pause and ask the user via the sub-component.
 		if len(msg.Items) > 0 {
-			m.skillSelector = NewSkillSelectorModel(m.source, msg.Items, msg.Warning, m.width)
-			m.onSelect = msg.OnSelect
+			if m.nonInteractive {
+				// Auto-select all items without prompting.
+				if msg.OnSelect != nil {
+					var allIDs []string
+					for _, item := range msg.Items {
+						allIDs = append(allIDs, item.ID)
+					}
+					_ = msg.OnSelect(allIDs)
+				}
+			} else {
+				m.skillSelector = NewSkillSelectorModel(m.source, msg.Items, msg.Warning, m.width)
+				m.onSelect = msg.OnSelect
 
-			// Clear the pending message so we stop advancing
-			m.pendingResolve = nil
-			m.tickDone = false
-			return m, nil
+				// Clear the pending message so we stop advancing
+				m.pendingResolve = nil
+				m.tickDone = false
+				return m, nil
+			}
 		}
 
 		m.pendingResolve = nil
@@ -337,13 +352,25 @@ func (m InstallModel) tryAdvance() (tea.Model, tea.Cmd) {
 
 		// Intercept if Extract provided items to select
 		if len(msg.Items) > 0 {
-			m.skillSelector = NewSkillSelectorModel(m.source, msg.Items, msg.Warning, m.width)
-			m.onSelect = msg.OnSelect
+			if m.nonInteractive {
+				// Auto-select all items without prompting.
+				if msg.OnSelect != nil {
+					var allIDs []string
+					for _, item := range msg.Items {
+						allIDs = append(allIDs, item.ID)
+					}
+					_ = msg.OnSelect(allIDs)
+				}
+				msg.Items = nil
+			} else {
+				m.skillSelector = NewSkillSelectorModel(m.source, msg.Items, msg.Warning, m.width)
+				m.onSelect = msg.OnSelect
 
-			// Clear the items so we don't prompt again
-			msg.Items = nil
-			m.tickDone = false
-			return m, nil
+				// Clear the items so we don't prompt again
+				msg.Items = nil
+				m.tickDone = false
+				return m, nil
+			}
 		}
 		m.pendingExtract = nil
 		m.tickDone = false
