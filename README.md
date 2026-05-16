@@ -14,12 +14,15 @@
 
 `taito` is a packaging manager for AI skills/agents.
 
-Using `taito` is the easiest way of installing skills and keeping them up to date, because just copying files around is not a good solution. 
-It also allows for packaging skills and agents into `OCI artifacts` for bundling and distribution.
-As a fallback taito can also work with GitHub repositories that either include a taito.spec file or comply with `skills/` and `agents/` directory structure.
 
-`bundles` bundles are a core concept in taito, they are a collection of skills and agents that are packaged together. Making installing and updating them easier, see `packaging` below for more information.
+## Why use `taito`?
 
+taito aims to be a standard way of packaging multiple skills and there dependencies into OCI artifacts, so called `bundles`. These bundles can then be easily installed and updated using the `taito` CLI. Make it easy to share and distribute skills for specific use cases like `frontend bundle` or `devops bundle`.
+
+It was designed with corporate environments in mind, where there is a need for a clear overview of what is contained in the skills and how they are shared across the organization.
+This is also why taito can detect update to skills bundles stored in OCI registries making it a fully featured package manager for skills.
+
+We don't want to reimplement the wheel, so taito can work with standard OCI registries which are widely used inside organizations, making it easy to adopt. 
 
 
 ![Preview](https://raw.githubusercontent.com/taito-project/.github/main/assets/taito-promo.gif)
